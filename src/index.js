@@ -5,6 +5,7 @@ import * as Query from './resolvers/Query.js';
 import * as Mutation from './resolvers/Mutation.js';
 import {ApolloServer} from "apollo-server";
 import fs from "fs";
+import {getUserId} from "./utils.js";
 
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,8 +23,15 @@ const server = new ApolloServer({
         'utf-8'
     ),
     resolvers,
-    context: {
-        prisma
+    context: ({req}) => {
+        return {
+            ...req,
+            prisma,
+            userId:
+                req && req.headers.authorization
+                    ? getUserId(req)
+                    : null
+        }
     }
 });
 
